@@ -31,22 +31,20 @@ double getPressure(){
 
 
 void setup(){
-      Serial.begin(9600);                                                                       
-    if(apds.init()){                                            
+    Serial.begin(9600);                                                                       
+    /*if(apds.init()){                                            
           Serial.println("Initialization OK!");                
     }else{Serial.println("Initialization ERROR!");}             
                                                                 
                   
     if(apds.enableLightSensor(false)){                         
           Serial.println("Start light sensor OK!");             
-    }else{Serial.println("Start light sensor ERROR!");}         
+    }else{Serial.println("Start light sensor ERROR!");}   */     
                                                                
              
     delay(500);
     Serial.begin(9600);
-    Serial.println("Init"); 
     pressure.begin();
-    Serial.println("Sucess");
 }
 
 void loop(){
@@ -63,7 +61,6 @@ void loop(){
     if (Serial.available() > 0) 
     {
         String data = Serial.readStringUntil('\n');
-        Serial.print("You sent me: ");
         if (data == getRasberiReqest)
         {
             apds.readAmbientLight (lightAmbient);
@@ -71,6 +68,5 @@ void loop(){
               "\", \"lightAmbient\":\"" + String(lightAmbient) +
               "\"}");
         }
-        
   }
 }
