@@ -32,16 +32,14 @@ double getPressure(){
 
 void setup(){
     Serial.begin(9600);                                                                       
-    /*if(apds.init()){                                            
-          Serial.println("Initialization OK!");                
-    }else{Serial.println("Initialization ERROR!");}             
+    if(apds.init())
+    {                                                            
+    }else{Serial.println("Initialization ERROR!");}            
                                                                 
                   
-    if(apds.enableLightSensor(false)){                         
-          Serial.println("Start light sensor OK!");             
-    }else{Serial.println("Start light sensor ERROR!");}   */     
-                                                               
-             
+    if(apds.enableLightSensor(false)){                                  
+    }else{Serial.println("Start light sensor ERROR!");}   
+                                                                        
     delay(500);
     Serial.begin(9600);
     pressure.begin();
@@ -51,7 +49,7 @@ void loop(){
 
     if(apds.readAmbientLight (lightAmbient))
     {                  
-        //Serial.println((String) "Ambient=" + lightAmbient); 
+       // Serial.println((String) "Ambient=" + lightAmbient); 
     }
     else
     {
