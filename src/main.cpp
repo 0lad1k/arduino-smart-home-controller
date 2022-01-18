@@ -1,12 +1,25 @@
 #include <Arduino.h>
 #include <SFE_BMP180.h>
-#include <SparkFun_APDS9960.h>                   
+#include <SparkFun_APDS9960.h> 
+#include<Thread.h>
+
 SparkFun_APDS9960 apds = SparkFun_APDS9960();                   
                                                                 
-uint16_t lightAmbient = 0;                                     
-
+uint16_t lightAmbient = 0;
+const int redLedPin = 11;
+const int ledPin = 13;                                      
+Thread ledThread = Thread();
+Thread soundThread = Thread();
 SFE_BMP180 pressure;
 const String getRasberiReqest = "giveMeData";
+bool isError = false;
+void ledBlink() {
+    Serial.println("Tic"); 
+    static bool ledStatus = false;    
+    ledStatus = !ledStatus; 
+    digitalWrite(redLedPin, ledStatus);           
+    digitalWrite(ledPin, ledStatus); 
+}
 
 double getPressure(){
     char status;
@@ -29,25 +42,8 @@ double getPressure(){
     }
 }
 
-
-void setup(){
-    Serial.begin(9600);                                                                       
-    if(apds.init())
-    {                                                            
-    }else{Serial.println("Initialization ERROR!");}            
-                                                                
-                  
-    if(apds.enableLightSensor(false)){                                  
-    }else{Serial.println("Start light sensor ERROR!");}   
-                                                                        
-    delay(500);
-    Serial.begin(9600);
-    pressure.begin();
-}
-
-void loop(){
-
-    if(apds.readAmbientLight (lightAmbient))
+void sound() { 
+ if(apds.readAmbientLight (lightAmbient))
     {                  
        // Serial.println((String) "Ambient=" + lightAmbient); 
     }
@@ -67,4 +63,33 @@ void loop(){
               "\"}");
         }
   }
+}
+
+
+void setup(){
+    soundThread.onRun(sound);     // назначаем потоку задачу
+    soundThread.setInterval(20);
+    ledThread.onRun(ledBlink);
+    ledThread.setInterval(1000);
+    pinMode(redLedPin, OUTPUT);
+    pinMode(ledPin, OUTPUT); 
+    Serial.begin(9600);                                                                       
+    if(apds.init())
+    {                                                            
+    }else{isError = true;}            
+                                                                
+                  
+    if(apds.enableLightSensor(false)){                                  
+    }else{isError = true;}   
+                                                                        
+    Serial.begin(9600);
+    pressure.begin();
+}
+
+void loop(){
+
+    if (ledThread.shouldRun())
+        ledThread.run();
+    if (soundThread.shouldRun())
+        soundThread.run(); // запускаем поток
 }
