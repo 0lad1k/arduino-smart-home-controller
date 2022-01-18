@@ -51,33 +51,34 @@ double getPressure()
 void sound()
 {
     digitalWrite(redLedPin, isError);
+    int P = getPressure();
     if (apds.readAmbientLight(lightAmbient))
     {
-        // Serial.println((String) "Ambient=" + lightAmbient);
+
+        if (!isError)
+        {
+            if (Serial.available() > 0)
+            {
+                String data = Serial.readStringUntil('\n');
+                if (data == getRasberiReqest)
+                {
+                    apds.readAmbientLight(lightAmbient);
+                    Serial.println("{\"Pressure\":\"" + String(P) +
+                                   "\", \"lightAmbient\":\"" + String(lightAmbient) +
+                                   "\"}");
+                }
+            }
+        }
     }
     else
     {
-        // Serial.println("Read light ERROR!");
-    }
-    if (!isError)
-    {
-        if (Serial.available() > 0)
-        {
-            String data = Serial.readStringUntil('\n');
-            if (data == getRasberiReqest)
-            {
-                apds.readAmbientLight(lightAmbient);
-                Serial.println("{\"P\":\"" + String(getPressure()) +
-                               "\", \"lightAmbient\":\"" + String(lightAmbient) +
-                               "\"}");
-            }
-        }
+        isError = true;
     }
 }
 
 void setup()
 {
-    soundThread.onRun(sound); // назначаем потоку задачу
+    soundThread.onRun(sound);
     soundThread.setInterval(20);
     ledThread.onRun(ledBlink);
     ledThread.setInterval(1000);
@@ -110,5 +111,5 @@ void loop()
     if (ledThread.shouldRun())
         ledThread.run();
     if (soundThread.shouldRun())
-        soundThread.run(); // запускаем поток
+        soundThread.run();
 }
