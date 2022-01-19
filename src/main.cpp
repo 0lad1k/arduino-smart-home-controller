@@ -6,10 +6,10 @@
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
 uint16_t lightAmbient = 0;
-const int redLedPin = 11;
+const int redLedPin = 5;
 const int ledPin = 13;
 Thread ledThread = Thread();
-Thread soundThread = Thread();
+Thread rasberiThread = Thread();
 SFE_BMP180 pressure;
 const String getRasberiReqest = "giveMeData";
 bool isError = false;
@@ -48,7 +48,7 @@ double getPressure()
     isError = true;
 }
 
-void sound()
+void checkInpuandSendData()
 {
     digitalWrite(redLedPin, isError);
     int P = getPressure();
@@ -78,8 +78,8 @@ void sound()
 
 void setup()
 {
-    soundThread.onRun(sound);
-    soundThread.setInterval(20);
+    rasberiThread.onRun(checkInpuandSendData);
+    rasberiThread.setInterval(20);
     ledThread.onRun(ledBlink);
     ledThread.setInterval(1000);
     pinMode(redLedPin, OUTPUT);
@@ -110,6 +110,6 @@ void loop()
 
     if (ledThread.shouldRun())
         ledThread.run();
-    if (soundThread.shouldRun())
-        soundThread.run();
+    if (rasberiThread.shouldRun())
+        rasberiThread.run();
 }
